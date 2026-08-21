@@ -662,6 +662,8 @@ public abstract class AbstractClientIdMetadataDocumentExecutor<CONFIG extends Ab
         // CIMD (mandatory): client_id
         // RFC 7591 (mandatory): redirect_uris
         // RFC 7591 (optional): logo_uri, client_uri, tos_uri, policy_uri, jwks_uri
+        // OIDC Dynamic Client Registration (optional): request_uris
+        // OIDC Back-Channel / Front-Channel Logout (optional): backchannel_logout_uri, frontchannel_logout_uri
 
         List<String> trustedDomains = convertContentFilledList(getConfiguration().getTrustedDomains());
         verifyUriProperty(clientOIDC.getClientId(), "client_id", trustedDomains);
@@ -675,6 +677,14 @@ public abstract class AbstractClientIdMetadataDocumentExecutor<CONFIG extends Ab
         verifyUriPropertyIfPresent(clientOIDC.getTosUri(), "tos_uri", trustedDomains);
         verifyUriPropertyIfPresent(clientOIDC.getPolicyUri(), "policy_uri", trustedDomains);
         verifyUriPropertyIfPresent(clientOIDC.getJwksUri(), "jwks_uri", trustedDomains);
+        verifyUriPropertyIfPresent(clientOIDC.getBackchannelLogoutUri(), "backchannel_logout_uri", trustedDomains);
+        verifyUriPropertyIfPresent(clientOIDC.getFrontChannelLogoutUri(), "frontchannel_logout_uri", trustedDomains);
+
+        if (clientOIDC.getRequestUris() != null) {
+            for (String request_uri : clientOIDC.getRequestUris()) {
+                verifyUriProperty(request_uri, "request_uris", trustedDomains);
+            }
+        }
 
         URI clientIdURIfromMetadata;
         try {

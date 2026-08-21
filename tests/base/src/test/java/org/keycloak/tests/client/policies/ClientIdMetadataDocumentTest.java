@@ -904,6 +904,24 @@ public class ClientIdMetadataDocumentTest {
         cimd.getRepresentation().setPolicyUri("https://localhost:8443/policy");
         cimd.getRepresentation().setJwksUri("https://10.255.255.1:443/mcp");
         assertLoginAndError(AbstractClientIdMetadataDocumentExecutor.ERR_NOTALLOWED_DOMAIN);
+
+        // OIDC Session Management: backchannel_logout_uri, frontchannel_logout_uri.
+        // RFC 9101: request_uris.
+
+        // backchannel_logout_uri : private address
+        cimd.getRepresentation().setJwksUri("https://localhost:8443/jwks");
+        cimd.getRepresentation().setBackchannelLogoutUri("https://10.255.255.2:443/backchannel-logout");
+        assertLoginAndError(AbstractClientIdMetadataDocumentExecutor.ERR_NOTALLOWED_DOMAIN);
+
+        // frontchannel_logout_uri : not allowed domain
+        cimd.getRepresentation().setBackchannelLogoutUri("https://localhost:8443/backchannel-logout");
+        cimd.getRepresentation().setFrontChannelLogoutUri("https://client.example.co.de/frontchannel-logout");
+        assertLoginAndError(AbstractClientIdMetadataDocumentExecutor.ERR_NOTALLOWED_DOMAIN);
+
+        // request_uris : private address
+        cimd.getRepresentation().setFrontChannelLogoutUri("https://localhost:8443/frontchannel-logout");
+        cimd.getRepresentation().setRequestUris(List.of("https://172.31.255.253:443/request"));
+        assertLoginAndError(AbstractClientIdMetadataDocumentExecutor.ERR_NOTALLOWED_DOMAIN);
     }
 
     @Test
